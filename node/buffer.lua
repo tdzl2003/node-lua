@@ -67,6 +67,14 @@ function Buffer:write(data, ...)
 	end
 end
 
+function Buffer:fill(value, ofs, endPos)
+	ofs = math.max(ofs or 0, 0)
+	endPos = math.min(endPos or self.size, self.size)
+	if (endPos > ofs) then
+		ffi.fill(self.data + ofs, endPos - ofs, value)
+	end
+end
+
 function Buffer:copy(target, tarStart, srcStart, srcEnd)
 	tarStart = tarStart or 0
 	srcStart = srcStart or 0
@@ -87,6 +95,20 @@ function Buffer:readUInt8(ofs, noAssert)
 	else
 		if (ofs>=0 and ofs<self.size) then
 			return self.data[ofs]
+		else
+			return 0
+		end
+	end
+end
+
+local pint8 = ffi.typeof("int8_t*")
+function Buffer:readInt8(ofs, noAssert)
+	if (noAssert) then
+		assert(ofs >= 0 and ofs < self.size, "Invalid argument!")
+		return ffi.cast(pint8, self.data + ofs)[0]
+	else
+		if (ofs>=0 and ofs<self.size) then
+			return ffi.cast(pint8, self.data + ofs)[0]
 		else
 			return 0
 		end
@@ -138,6 +160,15 @@ end
 
 Buffer.readUInt32BE = readUInt32BE
 
+local int16 = ffi.typeof("int16_t")
+function Buffer:readInt16LE(ofs, noAssert)
+	return tonumber(ffi.cast(int16, readUInt16LE(self, ofs, noAssert)))
+end
+
+function Buffer:readInt16BE(ofs, noAssert)
+	return tonumber(ffi.cast(int16, readUInt16BE(self, ofs, noAssert)))
+end
+
 function Buffer:readInt32LE(ofs, noAssert)
 	return tobit(readUInt32LE(self, ofs, noAssert))
 end
@@ -149,6 +180,9 @@ end
 -- Big-endian achitecture support
 if (ffi.abi("be")) then
 	Buffer.readUInt16LE, Buffer.readUInt16BE = Buffer.readUInt16BE, Buffer.readUInt16LE
+	Buffer.readUInt32LE, Buffer.readUInt32BE = Buffer.readUInt32BE, Buffer.readUInt32LE
+	Buffer.readInt16LE, Buffer.readInt16BE = Buffer.readInt16BE, Buffer.readInt16LE
+	Buffer.readInt32LE, Buffer.readInt32BE = Buffer.readInt32BE, Buffer.readInt32LE
 end
 
 function Buffer:toString(encoding, start, endpos)

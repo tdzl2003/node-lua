@@ -1,13 +1,8 @@
 require("buffer")
 
-local empty = {}
-for i = 1, 40 do 
-	empty[i] = 0
-end
-
 -- test of creation, write, tostring
-local buf = Buffer.new(empty)
---buf:write(empty)
+local buf = Buffer.new(40)
+buf:fill(32)		-- fill with space
 buf:write("Hello, buffer in Node.lua")
 local buf1 = Buffer.new(buf)
 buf:write("Replaced content.")
@@ -50,5 +45,7 @@ print(buf:readUInt16BE(0))
 print(buf:readUInt32LE(0))
 print(buf:readUInt32BE(0))
 
+print(buf:readInt16LE(2))
+print(buf:readInt16BE(2))
 print(buf:readInt32LE(0))
 print(buf:readInt32BE(0))
