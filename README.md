@@ -44,10 +44,6 @@ Assert:
 	assert.strictEqual,
 	assert.notStrictEqual in node.js are REMOVED.
 
-	There're still 2 functions todo.
-
-	We don't know the effect of assert.fail in node.js, so it may be rewrite in the future .
-
 Event:
 
 	There is another class "event.Dispatcher". Code line:
@@ -80,7 +76,7 @@ Event:
 
 	Directly call the dispatcher is same as use call method. It's as same as emitter:emit(eventName, [arg1], [arg2], [...])
 
-	Event: 'newListener' for emitter is removed.
+	Event: 'newListener' for emitter is REMOVED.
 
 	Node.lua add "isWeak" parameter to method addListener/on/once on both emitter and event dispatcher. If this parameter was provided as a non-false value(i.e., any value except nil and false), the listener will be added as weak. It can be collected if there's no other references. After collected, it will be automatically removed from dispatcher.
 
