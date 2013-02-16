@@ -41,6 +41,13 @@ Assert:
 
 	Direct call to "assert_" is available, but call "assert" or "assert_.ok" is recommended.
 
+	assert.strictEqual,
+	assert.notStrictEqual in node.js are REMOVED.
+
+	There're still 2 functions todo.
+
+	We don't know the effect of assert.fail in node.js, so it may be rewrite in the future .
+
 Event:
 
 	There is another class "event.Dispatcher". Code line:
