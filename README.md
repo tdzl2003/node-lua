@@ -27,7 +27,7 @@ Different with Node.js
 
 Buffer:
 
-	Buffer.new() can be used, but these followed functions is recommend:
+	Buffer.new() can be used, but these followed functions is recommended:
 
 		* Buffer.newWithSize(size)
 
@@ -39,7 +39,7 @@ Assert:
 
 	Package "assert" is renamed as "assert_" in Node.lua.
 
-	Direct call to "assert_" is available, but call "assert" or "assert_.ok" is faster.
+	Direct call to "assert_" is available, but call "assert" or "assert_.ok" is recommended.
 
 Event:
 
@@ -55,21 +55,21 @@ Event:
 
 	Similarly, you can use these methods:
 
-	* emitter.eventName:addListener(listener[, isWeak])
+		* emitter.eventName:addListener(listener[, isWeak])
 
-	* emitter.eventName:on(listener[, isWeak])
+		* emitter.eventName:on(listener[, isWeak])
 
-	* emitter.eventName:once(listener[, isWeak])
+		* emitter.eventName:once(listener[, isWeak])
 
-	* emitter.eventName:removeListener(listener)
+		* emitter.eventName:removeListener(listener)
 
-	* emitter.eventName:removeAllListeners()
+		* emitter.eventName:removeAllListeners()
 
-	* emitter.eventName:listeners()
+		* emitter.eventName:listeners()
 
-	* emitter.eventName([arg1], [arg2], [...])
+		* emitter.eventName([arg1], [arg2], [...])
 
-	* emitter.eventName:call([arg1], [arg2], [...])
+		* emitter.eventName:call([arg1], [arg2], [...])
 
 	Directly call the dispatcher is same as use call method. It's as same as emitter:emit(eventName, [arg1], [arg2], [...])
 
