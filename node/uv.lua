@@ -680,6 +680,26 @@ if (ffi.os == "Windows") then
 
 		typedef RTL_CRITICAL_SECTION CRITICAL_SECTION;
 
+		enum {
+			O_RDONLY = 0x0000,
+			O_WRONLY = 0x0001,
+			O_RDWR = 0x0002,
+			O_APPEND = 0x0008,
+			O_CREAT = 0x0100,
+			O_TRUNC = 0x0200,
+			O_EXCL = 0x0400,
+			O_TEXT = 0x4000,
+			O_BINARY = 0x8000,
+			O_WTEXT = 0x10000,
+			O_U16TEXT = 0x20000,
+			O_U8TEXT = 0x40000,
+			O_NOINHERIT = 0x0080,
+			O_TEMPORARY = 0x0040,
+			O_SHORT_LIVED = 0x1000,
+			O_SEQUENTIAL = 0x0020,
+			O_RANDOM = 0x0010,
+			O_RAW = 0x8000,
+		};
 
 		typedef SOCKET uv_os_sock_t;
 		typedef int uv_file;
