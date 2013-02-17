@@ -21,6 +21,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ===============================================================================
 
-Note that LuaJIT is based on MIT open source license, read luajit/COPYRIGHT for more information.
+Note that LuaJIT is based on MIT open source license. Read luajit/COPYRIGHT for more information.
+
+libuv is part of the Node project: http://nodejs.org/
+libuv is distributed alone under Node's license. Read libuv/LICENSE for more information.
+
+node/uv.lua is a minimized copy of libuv header file, with the same license as libuv.
 
 (end of COPYRIGHT)
