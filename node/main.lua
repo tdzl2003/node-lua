@@ -28,6 +28,10 @@ end
 
 local path = require("path")
 
+require("lua_ex")
+
 -- TODO: use option module to parse command line.
 dofile(arg[1])
 
+local uv = require("uv")
+uv.uv_run(uv.uv_default_loop(), uv.UV_RUN_DEFAULT)

@@ -14,7 +14,7 @@
 -- read LICENSE.md for more informations.
 
 local path = {}
-_G.path = path
+rawset(_G, "path", path)
 
 local curdir = "."
 local pardir = ".."

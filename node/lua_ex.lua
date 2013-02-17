@@ -19,3 +19,12 @@ function newWholeWeakTable()
 	return ret
 end
 
+
+-- limit global newindex
+-- only rawset(_G, key, value) is allowed.
+setmetatable(_G, {
+		__newindex = function (t, k, v)
+			print("Warning: writing global variant "..k)
+			rawset(t, k, v)
+		end
+	})

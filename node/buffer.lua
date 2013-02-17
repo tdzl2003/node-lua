@@ -295,5 +295,5 @@ function Buffer.isBuffer(buf)
 	return ffi.istype(bufferCT, buf)
 end
 
-_G.Buffer = Buffer
+rawset(_G,  "Buffer",  Buffer)
 return Buffer
