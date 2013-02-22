@@ -177,6 +177,85 @@ function Buffer:readInt32BE(ofs, noAssert)
 	return tobit(readUInt32BE(self, ofs, noAssert))
 end
 
+--read a float from buffer
+local pfloat  = ffi.typeof("*float")
+local float32 = ffi.typeof("float")
+local function readFloatLE(self, ofs, noAssert)
+	if (noAssert) then
+		assert(ofs>=0 and ofs+3<self.size, "Buffer overflow!")
+		return ffi.cast(pfloat, self.data+ofs)[0]
+	else
+		if (ofs>=0 and ofs+3<self.size) then
+			return ffi.cast(pfloat, self.data+ofs)[0]
+		else
+			return 0
+		end
+	end
+end
+
+local function readFloatBE(self, ofs, noAssert)
+	local ret = readFloatLE(self, ofs, noAssert)
+	return bswap(ret)
+end
+
+function Buffer:readFloatLE(ofs, noAssert)
+
+end
+
+function Buffer:readFloatBE(ofs, noAssert)
+
+end
+
+--read a double from buffer
+local pdouble  = ffi.typeof("*double")
+local double64 = ffi.typeof("double")
+local function readDoubleLE(self, ofs, noAssert)
+	if (noAssert) then 
+		assert(ofs>=0 and ofs+7<self.size, "Buffer overflow!")
+		return ffi.cast(pdouble, self.data+ofs)[0]
+	else
+		if (ofs>=0 and ofs+7<self.size) then
+			return ffi.cast(pdouble, self.data+ofs)[0]
+		else
+			return 0
+		end
+	end
+end
+
+local function readDoubleBE(self, ofs, noAssert)
+	local ret = readDoubleLE(self, ofs, noAssert)
+	return bswap(ret)
+end
+
+function Buffer:readDoubleLE(ofs, noAssert)
+
+end
+
+function Buffer:readDoubleBE(ofs, noAssert)
+
+end
+
+--read a uint64 from buffer
+local pint64 = ffi.typeof("*unsigned long long")
+local int64  = ffi.typeof("unsigned long long")
+local function readInt64LE(self, ofs, noAssert)
+	if (noAssert) then
+		assert(ofs>=0 and ofs+7<self.size, "Buffer overflow!")
+		return ffi.cast(pint64, self.data+ofs)[0]
+	else
+		if (ofs>=0 and ofs+7<self.size) then
+			return ffi.cast(pint64, self.data+ofs)[0]
+		else
+			return 0
+		end
+	end
+end
+
+local function readInt64BE(self, ofs, noAssert)
+	local ret = readInt64LE(self, ofs, noAssert)
+	return bswap(ret)
+end
+
 -- Big-endian achitecture support
 if (ffi.abi("be")) then
 	Buffer.readUInt16LE, Buffer.readUInt16BE = Buffer.readUInt16BE, Buffer.readUInt16LE
