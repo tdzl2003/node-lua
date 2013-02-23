@@ -178,7 +178,7 @@ function Buffer:readInt32BE(ofs, noAssert)
 end
 
 --read a float from buffer
-local pfloat  = ffi.typeof("*float")
+local pfloat  = ffi.typeof("float*")
 local float32 = ffi.typeof("float")
 local function readFloatLE(self, ofs, noAssert)
 	if (noAssert) then
@@ -194,20 +194,19 @@ local function readFloatLE(self, ofs, noAssert)
 end
 
 local function readFloatBE(self, ofs, noAssert)
-	local ret = readFloatLE(self, ofs, noAssert)
-	return bswap(ret)
+	return (floatBSwap(readFloatLE(self, ofs, noAssert)))
 end
 
 function Buffer:readFloatLE(ofs, noAssert)
-
+	return readFloatLE(self, ofs, noAssert)
 end
 
 function Buffer:readFloatBE(ofs, noAssert)
-
+	return readFloatBE(self, ofs, noAssert)
 end
 
 --read a double from buffer
-local pdouble  = ffi.typeof("*double")
+local pdouble  = ffi.typeof("double*")
 local double64 = ffi.typeof("double")
 local function readDoubleLE(self, ofs, noAssert)
 	if (noAssert) then 
@@ -223,21 +222,20 @@ local function readDoubleLE(self, ofs, noAssert)
 end
 
 local function readDoubleBE(self, ofs, noAssert)
-	local ret = readDoubleLE(self, ofs, noAssert)
-	return bswap(ret)
+	return doubleBSwap(readDoubleLE(self, ofs, noAssert))
 end
 
 function Buffer:readDoubleLE(ofs, noAssert)
-
+	return readDoubleLE(self, ofs, noAssert)
 end
 
 function Buffer:readDoubleBE(ofs, noAssert)
-
+	return readDoubleBE(self, ofs, noAssert)
 end
 
 --read a uint64 from buffer
-local pint64 = ffi.typeof("*unsigned long long")
-local int64  = ffi.typeof("unsigned long long")
+local pint64 = ffi.typeof("long long*")
+local int64  = ffi.typeof("long long")
 local function readInt64LE(self, ofs, noAssert)
 	if (noAssert) then
 		assert(ofs>=0 and ofs+7<self.size, "Buffer overflow!")
@@ -252,8 +250,15 @@ local function readInt64LE(self, ofs, noAssert)
 end
 
 local function readInt64BE(self, ofs, noAssert)
-	local ret = readInt64LE(self, ofs, noAssert)
-	return bswap(ret)
+	return int64BSwap(readInt64LE(self, ofs, noAssert))
+end
+
+function Buffer:readInt64LE(ofs, noAssert)
+	return readInt64LE(self, ofs, noAssert)
+end
+
+function Buffer:readInt64BE(ofs, noAssert)
+	return readInt64BE(self, ofs, noAssert)
 end
 
 -- Big-endian achitecture support
