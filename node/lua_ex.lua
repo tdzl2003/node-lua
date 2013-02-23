@@ -56,10 +56,8 @@ local int64u = ffi.new("int64u")
 
 function int64BSwap(i)
 	int64u.llValue = i
-	print(int64u.int32Value[0],int64u.int32Value[1])
 	local t = bswap(int64u.int32Value[0])
 	local u = bswap(int64u.int32Value[1])
-	print(t,u)
 	int64u.int32Value[0] = u
 	int64u.int32Value[1] = t
 	return int64u.llValue
