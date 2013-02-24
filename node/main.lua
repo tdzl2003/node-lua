@@ -34,4 +34,5 @@ require("lua_ex")
 dofile(arg[1])
 
 local uv = require("uv")
-uv.uv_run(uv.uv_default_loop(), uv.UV_RUN_DEFAULT)
+local uv_lua = require("uv_lua")
+uv_lua.uv_run(uv.uv_default_loop(), uv.UV_RUN_DEFAULT)

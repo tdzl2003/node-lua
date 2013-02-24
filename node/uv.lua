@@ -231,7 +231,7 @@ if (ffi.os == "Windows") then
   	UV_IDLE_PRIVATE_FIELDS = [[
 		uv_idle_t* idle_prev;
 		uv_idle_t* idle_next;
-		uv_idle_cb idle_cb;
+		union {uv_idle_cb idle_cb; int idle_cb_lua;};
   	]]
 
   	UV_ASYNC_PRIVATE_FIELDS = [[
@@ -251,7 +251,7 @@ if (ffi.os == "Windows") then
 		int64_t due;
 		int64_t repeat;
 		uint64_t start_id;
-		uv_timer_cb timer_cb;
+		union {uv_timer_cb timer_cb; int timer_cb_lua;};
   	]]
 
   	UV_GETADDRINFO_PRIVATE_FIELDS = [[
@@ -333,7 +333,7 @@ if (ffi.os == "Windows") then
 
   	UV_LOOP_PRIVATE_FIELDS = [[
 		HANDLE iocp;
-		int64_t time;
+		uint64_t time;
 		uv_req_t* pending_reqs_tail;
 		uv_handle_t* endgame_handles;
 		struct uv_timer_tree_s{
@@ -1172,7 +1172,7 @@ ffi.cdef([[
 	void uv_unref(uv_handle_t*);
 
 	void uv_update_time(uv_loop_t*);
-	int64_t uv_now(uv_loop_t*);
+	uint64_t uv_now(uv_loop_t*);
 
 	int uv_backend_fd(const uv_loop_t*);
 
@@ -1513,16 +1513,16 @@ ffi.cdef([[
 
 	int uv_timer_start(uv_timer_t* timer,
                              uv_timer_cb cb,
-                             int64_t timeout,
-                             int64_t repeat);
+                             uint64_t timeout,
+                             uint64_t repeat);
 
 	int uv_timer_stop(uv_timer_t* timer);
 
 	int uv_timer_again(uv_timer_t* timer);
 
-	void uv_timer_set_repeat(uv_timer_t* timer, int64_t repeat);
+	void uv_timer_set_repeat(uv_timer_t* timer, uint64_t repeat);
 
-	int64_t uv_timer_get_repeat(uv_timer_t* timer);
+	uint64_t uv_timer_get_repeat(const uv_timer_t* timer);
 
 	struct uv_getaddrinfo_s {
 ]] .. UV_REQ_FIELDS .. [[
@@ -1938,6 +1938,23 @@ ffi.cdef([[
 ]] .. UV_LOOP_PRIVATE_FIELDS .. [[
 	};
 ]])
+
+-- uv-lua.h
+ffi.cdef [[
+	// CORE functions
+	int uv_loop_alive(uv_loop_t* loop);
+
+	// IDLE functions
+	int uv_idle_start_lua(uv_idle_t* idle, int callback);
+
+	// timer functions
+	int uv_timer_start_lua(uv_timer_t* handle,
+	                             int callback,
+	                             uint64_t timeout,
+	                             uint64_t repeat);
+
+	uv_timer_t* uv_timer_query_lua(uv_loop_t* loop);
+]]
 
 local uv
 if (ffi.os == "Windows") then
