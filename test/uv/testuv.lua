@@ -3,8 +3,8 @@ local uv_lua = require("uv_lua")
 local ffi = require("ffi")
 local buffer = require("buffer")
 
---Idle test
 --[[
+--Idle test
 local start = uv.uv_hrtime()
 
 local counter = 0
@@ -29,14 +29,14 @@ end
 print("Idling")
 uv_lua.uv_run(uv.uv_default_loop(), uv.UV_RUN_DEFAULT)
 
-
+collectgarbage()
 print(tonumber(uv.uv_hrtime() - start) / 1000000000)
 ]]
 
 -- idle 1e6 times:
 -- takes 3.2239s before optimize.
 -- 0.013s after optimize.
-
+--[[
 
 local timer = ffi.new("uv_timer_t[1]")
 uv.uv_timer_init(uv.uv_default_loop(), timer)
@@ -50,3 +50,5 @@ uv_lua.uv_timer_start(timer, function(handler, status)
 	end
 end, 500, 500)
 
+
+]]

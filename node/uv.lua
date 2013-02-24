@@ -1681,7 +1681,7 @@ ffi.cdef([[
 ]] .. UV_REQ_FIELDS .. [[
 		uv_fs_type fs_type;
 		uv_loop_t* loop;
-		uv_fs_cb cb;
+		union {uv_fs_cb cb; int cb_lua;};
 		ssize_t result;
 		void* ptr;
 		const char* path;
@@ -1954,7 +1954,22 @@ ffi.cdef [[
 	                             uint64_t repeat);
 
 	uv_timer_t* uv_timer_query_lua(uv_loop_t* loop);
+
+	// fs functions
+	int uv_fs_open_lua(uv_loop_t* loop, uv_fs_t* req, const char* path, int flags, int mode, int callback);
+	int uv_fs_read_lua(uv_loop_t* loop, uv_fs_t* req, uv_file fd, void* buf,
+    	size_t length, int64_t offset, int cb);
 ]]
+if (ffi.os == "Windows") then
+	ffi.cdef [[
+		void uv_preprocess_fs_req(uv_loop_t* loop, uv_fs_t* req);
+
+		int isPoolExAvailable(uv_loop_t* loop);
+		void uv_poll(uv_loop_t* loop, int block);
+		void uv_poll_ex(uv_loop_t* loop, int block);
+	]]
+else
+end
 
 local uv
 if (ffi.os == "Windows") then
