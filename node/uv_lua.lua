@@ -73,6 +73,150 @@ function uv_lua.uv_fs_read(loop, req, file, buf, len, ofs, callback)
 	end
 end
 
+function uv_lua.uv_fs_close(loop, req, file, callback)
+	if (callback) then
+		return uv.uv_fs_close_lua(loop, req, file, register(callback))
+	else
+		return uv.uv_fs_close(loop, req, file, nil)
+	end
+end
+
+function uv_lua.uv_fs_unlink(loop, req, path, callback)
+	if (callback) then 
+		return uv.uv_fs_unlink_lua(loop, req, path, register(callback))
+	else
+		return uv.uv_fs_unlink(loop, req, path, nil)
+	end
+end
+
+function uv_lua.uv_fs_write(loop, req, file, buf, length, offset, callback)
+	if (callback) then
+		return uv.uv_fs_write_lua(loop, req, file, buf, length, offset, register(callback))
+	else
+		return uv.uv_fs_write(loop, req, file, buf, length, offset, nil)
+	end
+end
+
+function uv_lua.uv_fs_mkdir(loop, req, path, mode, callback)
+	if (callback) then
+		return uv.uv_fs_mkdir_lua(loop, req, path, mode, register(callback))
+	else
+		return uv.uv_fs_mkdir(loop, req, path, mode, nil)
+	end
+end
+
+function uv_lua.uv_fs_rmdir(loop, req, path, callback)
+	if (callback) then
+		return uv.uv_fs_rmdir_lua(loop, req, path, callback)
+	else
+		return uv.uv_fs_rmdir(loop, req, path, nil)
+	end
+end
+
+function uv_lua.uv_fs_readdir(loop, req, path, flags, callback)
+	if (callback) then
+		return uv.uv_fs_readdir_lua(loop, req, path, flags, register(callback))
+	else
+		return uv.uv_fs_readdir(loop, rea, path, flags, nil)
+	end
+end
+
+function uv_lua.uv_fs_stat(loop, req, path, callback)
+	if (callback) then
+		return uv.uv_fs_stat_lua(loop, req, path, register(callback))
+	else
+		return uv.uv_fs_stat(loop, req, path, nil)
+	end
+end
+
+function uv_lua.uv_fs_fstat(loop, req, file, callback)
+	if (callback) then
+		return uv.uv_fs_fstat_lua(loop, req, file, register(callback))
+	else
+		return uv.uv_fs_fstat(loop, req, file, nil)
+	end
+end
+
+function uv_lua.uv_fs_rename(loop, req, path, new_path, callback)
+	if (callback) then
+		return uv.uv_fs_rename_lua(loop, req, path, new_path, register(callback))
+	else
+		return uv.uv_fs_rename(loop, req, path, new_path, nil)
+	end
+end
+
+function uv_lua.uv_fs_fsync(loop, req, file, callback)
+	if (callback) then
+		return uv.uv_fs_fsync_lua(loop, req, file, register(callback))
+	else
+		return uv.uv_fs_fsync(loop, req, file, nil)
+	end
+end
+
+function uv_lua.uv_fs_fdatasync(loop, req, file, callback)
+	if (callback) then
+		return uv.uv_fs_fdatasync_lua(loop, req, file, register(callback))
+	else
+		return uv.uv_fs_fdatasync(loop, req, file, nil)
+	end
+end
+
+function uv_lua.uv_fs_ftruncate(loop, req, file, offset, callback)
+	if (callback) then
+		return uv.uv_fs_ftruncate_lua(loop, req, file, offset, register(callback))
+	else
+		return uv.uv_fs_ftruncate(loop, req, file, offset, nil)
+	end
+end
+
+function uv_lua.uv_fs_sendfile(loop, req, out_fd, in_fd, in_offset, length, callback)
+	if (callback) then
+		return uv.uv_fs_sendfile_lua(loop, req, out_fd, in_fd, in_offset, length, register(callback))
+	else
+		return uv.uv_fs_sendfile(loop, req, out_fd, in_fd, in_offset, length, nil)
+	end
+end
+
+function uv_lua.uv_fs_chmod(loop, req, path, mode, callback)
+	if (callback) then
+		return uv.uv_fs_chmod_lua(loop, req, path, mode, register(callback))
+	else
+		return uv.uv_fs_chmod(loop, req, path, mode, nil)
+	end
+end
+
+function uv_lua.uv_fs_utime(loop, req, path, atime, mtime, callback)
+	if (callback) then
+		return uv.uv_fs_utime_lua(loop, req, path, atime, mtime, register(callback))
+	else
+		return uv.uv_fs_utime(loop, req, path, atime, mtime, nil)
+	end
+end
+
+function uv_lua.uv_fs_futime(loop, req, file, atime, mtime, callback)
+	if (callback) then
+		return uv.uv_fs_futime_lua(loop, req, file, atime, mtime ,register(callback))
+	else
+		return uv.uv_fs_futime(loop, req, file, atime, mtime, nil)
+	end
+end
+
+function uv_lua.uv_fs_lstat(loop, req, path, callback)
+	if (callback) then
+		return uv.uv_fs_lstat_lua(loop, req, path, register(callback))
+	else
+		return uv.uv_fs_lstat(loop, req, path, nil)
+	end
+end
+
+function uv_lua.uv_fs_link(loop, req, path, new_path, callback)
+	if (callback) then 
+		return uv.uv_fs_link_lua(loop, req, path, new_path, register(callback))
+	else
+		return uv.uv_Fs_link(loop, req, path, new_path, nil)
+	end
+end
+
 if (ffi.os == "Windows") then
 	local function uv_idle_invoke(loop)
 		local handle

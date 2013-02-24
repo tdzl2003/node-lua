@@ -1956,9 +1956,45 @@ ffi.cdef [[
 	uv_timer_t* uv_timer_query_lua(uv_loop_t* loop);
 
 	// fs functions
-	int uv_fs_open_lua(uv_loop_t* loop, uv_fs_t* req, const char* path, int flags, int mode, int callback);
-	int uv_fs_read_lua(uv_loop_t* loop, uv_fs_t* req, uv_file fd, void* buf,
-    	size_t length, int64_t offset, int cb);
+	int uv_fs_close_lua(uv_loop_t* loop, uv_fs_t* req, uv_file file, int cb);
+
+	int uv_fs_open_lua(uv_loop_t* loop, uv_fs_t* req, const char* path, int flags, int mode, int cb);
+
+	int uv_fs_read_lua(uv_loop_t* loop, uv_fs_t* req, uv_file file, void* buf, size_t length, int64_t offset, int cb);
+
+	int uv_fs_unlink_lua(uv_loop_t* loop, uv_fs_t* req, const char* path, int cb);
+
+	int uv_fs_write_lua(uv_loop_t* loop, uv_fs_t* req, uv_file file, void* buf, size_t length, int64_t offset, int cb);
+
+	int uv_fs_mkdir_lua(uv_loop_t* loop, uv_fs_t* req, const char* path, int mode, int cb);
+
+	int uv_fs_rmdir_lua(uv_loop_t* loop, uv_fs_t* req, const char* path, int cb);
+
+	int uv_fs_readdir_lua(uv_loop_t* loop, uv_fs_t* req, const char* path, int flags, int cb);
+
+	int uv_fs_stat_lua(uv_loop_t* loop, uv_fs_t* req, const char* path, int cb);
+
+	int uv_fs_fstat_lua(uv_loop_t* loop, uv_fs_t* req, uv_file file, int cb);
+
+	int uv_fs_rename_lua(uv_loop_t* loop, uv_fs_t* req, const char* path, const char* new_path, int cb);
+
+	int uv_fs_fsync_lua(uv_loop_t* loop, uv_fs_t* req, uv_file file, int cb);
+
+	int uv_fs_fdatasync_lua(uv_loop_t* loop, uv_fs_t* req, uv_file file, int cb);
+
+	int uv_fs_ftruncate_lua(uv_loop_t* loop, uv_fs_t* req, uv_file file, int64_t offset, int cb);
+
+	int uv_fs_sendfile_lua(uv_loop_t* loop, uv_fs_t* req, uv_file out_fd, uv_file in_fd, int64_t in_offset, size_t length, int cb);
+
+	int uv_fs_chmod_lua(uv_loop_t* loop, uv_fs_t* req, const char* path, int mode, int cb);
+
+	int uv_fs_utime_lua(uv_loop_t* loop, uv_fs_t* req, const char* path, double atime, double mtime, int cb);
+
+	int uv_fs_futime_lua(uv_loop_t* loop, uv_fs_t* req, uv_file file, double atime, double mtime, int cb);
+
+	int uv_fs_lstat_lua(uv_loop_t* loop, uv_fs_t* req, const char* path, int cb);
+
+	int uv_fs_link_lua(uv_loop_t* loop, uv_fs_t* req, const char* path, const char* new_path, int cb);
 ]]
 if (ffi.os == "Windows") then
 	ffi.cdef [[
