@@ -77,6 +77,13 @@ function doubleBSwap(d)
 	return doubleu.dValue
 end
 
+function bind(f, ...)
+    local args = {...}
+    return function ()
+        return f(unpack(args))
+    end
+end
+
 -- limit global newindex
 -- only rawset(_G, key, value) is allowed.
 setmetatable(_G, {
