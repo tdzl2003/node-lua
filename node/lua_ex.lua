@@ -48,7 +48,7 @@ end
 
 ffi.cdef[[
 	typedef union{
-		int int32Value[2];
+	    int int32Value[2];
 		long long llValue;
 	} int64u;
 ]]
@@ -71,12 +71,18 @@ ffi.cdef[[
 ]]
 local doubleu = ffi.new("doubleu")
 
-function doubleSwap(d)
+function doubleBSwap(d)
 	doubleu.dValue = d
 	doubleu.llValue = int64BSwap(doubleu.llValue)
 	return doubleu.dValue
 end
 
+function bind(f, ...)
+    local args = {...}
+    return function ()
+        return f(unpack(args))
+    end
+end
 
 -- limit global newindex
 -- only rawset(_G, key, value) is allowed.
