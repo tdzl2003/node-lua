@@ -112,6 +112,6 @@ Different with libuv:
 -------
 	Some new C source files were added into libuv branch at [libuv branch for node.lua](https://github.com/tdzl2003/libuv), and some struct definitions were changed.
 	Call function implemented in module uv_lua instead whenever it's possible. This module solved the callback performance issue in luajit. They all have same declaration, but run 100-300 times faster. DONOT mixed use the uv version and the uv_lua version! This may cause crash or other errors.
-		* You must call uv_xxxx_stop(handler) function before let them is collected.
+	Unlike functions in module uv, every function in uv_lua is welcome to cache.
 	See [FFI Semantics](http://luajit.org/ext_ffi_semantics.html#callback_performance) for more information.
 	Field "data" in each req/handler is reserved for libuv. DO NOT modify them.

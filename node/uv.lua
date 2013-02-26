@@ -25,6 +25,7 @@ IN THE SOFTWARE.
 
 local ffi = require("ffi")
 
+local UV_REQ_TYPE_PRIVATE = ""
 local UV_REQ_PRIVATE_FIELDS = ""
 
 local UV_HANDLE_PRIVATE_FIELDS = ""
@@ -100,7 +101,7 @@ if (ffi.os == "Windows") then
 				uv_shutdown_t* shutdown_req;
 			};
 			struct {
-				uv_connection_cb connection_cb;
+				union { uv_connection_cb connection_cb; int connection_cb_lua;};
 			};
 		};
 	]]
@@ -349,6 +350,17 @@ if (ffi.os == "Windows") then
 		unsigned int active_tcp_streams;
 		unsigned int active_udp_streams;
 		uint64_t timer_counter;
+	]]
+
+	UV_REQ_TYPE_PRIVATE = [[
+		UV_ACCEPT,
+		UV_FS_EVENT_REQ,
+		UV_POLL_REQ,
+		UV_PROCESS_EXIT,
+		UV_READ,
+		UV_UDP_RECV,
+		UV_WAKEUP,
+		UV_SIGNAL_REQ,
 	]]
 
 	ffi.cdef [[
@@ -965,7 +977,7 @@ local UV_REQ_FIELDS = [[
 ]] .. UV_REQ_PRIVATE_FIELDS
 
 local UV_HANDLE_FIELDS = [[
-	uv_close_cb close_cb;
+	union {uv_close_cb close_cb;int close_cb_lua;};
 	void* data;
 	/* read-only */
 	uv_loop_t* loop;
@@ -1116,7 +1128,7 @@ ffi.cdef([[
 		UV_FS,
 		UV_WORK,
 		UV_GETADDRINFO,
-		UV_REQ_TYPE_PRIVATE,
+	]]..UV_REQ_TYPE_PRIVATE..[[
 		UV_REQ_TYPE_MAX
 	} uv_req_type;
 
@@ -1955,6 +1967,9 @@ ffi.cdef [[
 
 	uv_timer_t* uv_timer_query_lua(uv_loop_t* loop);
 
+	// network functions
+	int uv_listen_lua(uv_stream_t* stream, int backlog, int cb);
+
 	// fs functions
 	int uv_fs_open_lua(uv_loop_t* loop, uv_fs_t* req, const char* path, int flags, int mode, int callback);
 	int uv_fs_read_lua(uv_loop_t* loop, uv_fs_t* req, uv_file fd, void* buf,
@@ -1962,6 +1977,11 @@ ffi.cdef [[
 ]]
 if (ffi.os == "Windows") then
 	ffi.cdef [[
+		// tcp internal function:
+		int uv_preprocess_tcp_accept_req(uv_loop_t* loop, uv_tcp_t* handle,
+		uv_req_t* raw_req);
+
+		// fs internal function:
 		void uv_preprocess_fs_req(uv_loop_t* loop, uv_fs_t* req);
 
 		int isPoolExAvailable(uv_loop_t* loop);

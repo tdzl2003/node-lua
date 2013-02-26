@@ -9,15 +9,18 @@ local band = bit.band
 -- Callback wrap
 local registers = {}
 local freelist
+local count = 0
 
 local function register(cb)
+	assert(cb)
 	local id
 
 	if (freelist) then
 		id = freelist
 		freelist = registers[freelist]
 	else
-		id = #registers + 1
+		count = count + 1
+		id = count
 	end
 
 	registers[id] = cb
@@ -34,7 +37,6 @@ end
 
 -- Idle functions
 function uv_lua.uv_idle_start(handler, callback)
-	unregister(tonumber(handler[0].idle_cb_lua))
 	return uv.uv_idle_start_lua(handler, register(callback))
 end
 
@@ -46,7 +48,6 @@ end
 
 -- Timer functions 
 function uv_lua.uv_timer_start(handler, callback, timeout, rep)
-	unregister(tonumber(handler[0].timer_cb_lua))
 	return uv.uv_timer_start_lua(handler, register(callback), timeout or 0, rep or 0)
 end
 
@@ -54,6 +55,22 @@ function uv_lua.uv_timer_stop(handler)
 	unregister(tonumber(handler[0].timer_cb_lua))
 	handler[0].timer_cb_lua = 0
 	uv.uv_timer_stop(handler)
+end
+
+-- network functions
+local p_uv_stream_t = ffi.typeof("uv_stream_t*")
+local p_uv_handle_t = ffi.typeof("uv_handle_t*")
+
+function uv_lua.uv_listen(server, backlog, callback)
+	return uv.uv_listen_lua(ffi.cast(p_uv_stream_t, server), backlog, register(callback))
+end
+
+function uv_lua.uv_accept(server, client)
+	return uv.uv_accept(ffi.cast(p_uv_stream_t, server), ffi.cast(p_uv_stream_t, client))
+end
+
+function uv_lua.uv_close(handle, callback)
+	return uv.uv_close(ffi.cast(p_uv_handle_t, handle), callback)
 end
 
 -- fs functions
@@ -97,6 +114,35 @@ if (ffi.os == "Windows") then
 		end
 	end
 
+	local p_uv_tcp_t = ffi.typeof("uv_tcp_t*")
+	local function uv_process_tcp_accept_req(loop, handle, raw_req)
+		local result = uv.uv_preprocess_tcp_accept_req(loop, handle, raw_req)
+
+		-- result 1 means ignore here.
+		if (result <= 0) then
+			registers[handle.connection_cb_lua](handle, result)
+
+			if (result < 0) then
+				-- some error occured. stop listening.
+				unregister(handle.connection_cb_lua)
+				handle.connection_cb_lua = 0
+			end
+		end
+	end
+
+	local function uv_process_accept_req(loop, req)
+		local handle = ffi.cast(p_uv_handle_t, req.data)
+		local type = handle.type
+
+		if (type == uv.UV_TCP) then
+			uv_process_tcp_accept_req(loop, ffi.cast(p_uv_tcp_t, handle), req)
+		--elseif (type == uv.UV_NAMED_PIPE) then
+		--elseif (type == uv.UV_TTY) then
+		else
+			error("Unsupported handle type!" .. tostring(type))
+		end
+	end
+
 	local p_uv_fs_t = ffi.typeof("uv_fs_t*")
 	local function uv_process_fs_req(loop, req)
 		req = ffi.cast(p_uv_fs_t, req)
@@ -104,6 +150,7 @@ if (ffi.os == "Windows") then
 		uv.uv_preprocess_fs_req(loop, req)
 		local f = registers[req.cb_lua]
 		unregister(req.cb_lua)
+		req.cb_lua = 0
 		f(req)
 	end
 
@@ -129,7 +176,8 @@ if (ffi.os == "Windows") then
 			-- TODO:
 			-- elseif (type == uv.UV_READ) then
 			-- elseif (type == uv.UV_WRITE) then
-			-- elseif (type == uv.UV_ACCEPT) then
+			elseif (type == uv.UV_ACCEPT) then
+				uv_process_accept_req(loop, req)
 			-- elseif (type == uv.UV_CONNECT) then
 			-- elseif (type == uv.UV_SHUTDOWN) then
 			-- elseif (type == uv.UV_UDP_RECV) then
@@ -144,9 +192,43 @@ if (ffi.os == "Windows") then
 			-- elseif (type == uv.UV_WORK) then
 			-- elseif (type == uv.UV_FS_EVENT_REQ) then
 			else
-				error ("Unsupported req type!")
+				error ("Unsupported req type!" .. tostring(type))
 			end
 
+		end
+	end
+
+	local function uv_tcp_endgame(loop, handle)
+		local tcphandle = ffi.cast(p_uv_tcp_t, handle)
+		-- TODO: shutdown
+		uv.uv_tcp_endgame_step2_lua(loop, handle)
+	end
+
+	local function uv_process_endgames(loop)
+		local handle
+		while (loop.endgame_handles) do
+			handle = loop.endgame_handles
+			loop.endgame_handles = handle.endgame_next
+			handle.flags = band(handle.flags, 0xFFFFFFFB)
+
+			local type = handle.type
+
+			if (type == uv.UV_TCP) then
+				uv_tcp_endgame(loop, handle)
+			-- elseif (type == uv.UV_NAMED_PIPE) then
+			-- elseif (type == uv.UV_TTY) then
+			-- elseif (type == uv.UV_UDP) then
+			-- elseif (type == uv.UV_POLL) then
+			-- elseif (type == uv.UV_TIMER) then
+			-- elseif (type == uv.UV_PREPARE or type == uv.UV_CHECK or type == uv.UV_IDLE) then
+			-- elseif (type == uv.UV_ASYNC) then
+			-- elseif (type == uv.UV_SIGNAL) then
+			-- elseif (type == uv.UV_PROCESS) then
+			-- elseif (type == uv.UV_FS_EVENT) then
+			-- elseif (type == uv.UV_FS_POLL) then
+			else
+				error("Unsupported handle type!" .. tostring(type))
+			end
 		end
 	end
 
@@ -183,7 +265,7 @@ if (ffi.os == "Windows") then
 			end
 
 			uv_process_reqs(loop);
-			-- uv_process_endgames(loop);
+			uv_process_endgames(loop);
 			-- uv_prepare_invoke(loop);
 
 			poll(loop, 
