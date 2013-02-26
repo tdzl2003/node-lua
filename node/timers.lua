@@ -7,7 +7,7 @@ local loop = uv.uv_default_loop()
 
 local uv_timer_t = ffi.typeof("uv_timer_t[1]")
 
-function setTimeOut(callback, delay, ...)
+local function setTimeOut(callback, delay, ...)
 	local timerID = {}
 	aTimerReq[timerID] = ffi.new(uv_timer_t)
 
@@ -17,13 +17,17 @@ function setTimeOut(callback, delay, ...)
 
 	return timerID
 end
+rawset(_G, "setTimeOut", setTimeOut)
 
-function clearTimeOut(timeoutID)
-	uv_lua.uv_timer_stop(aTimerReq[timeoutID])
-	aTimerReq[timeoutID] = nil
+local function clearTimeOut(timeoutID)
+	if (aTimerReq[timeoutID] ~= nil) then
+		uv_lua.uv_timer_stop(aTimerReq[timeoutID])
+		aTimerReq[timeoutID] = nil
+	end
 end
+rawset(_G, "clearTimeOut", clearTimeOut)
 
-function setInterval(callback, delay, ...)
+local function setInterval(callback, delay, ...)
 	local timerID = {}
 	aTimerReq[timerID] = ffi.new(uv_timer_t)
 
@@ -33,8 +37,12 @@ function setInterval(callback, delay, ...)
 
 	return timerID
 end
+rawset(_G, "setInterval", setInterval)
 
-function clearInterval(intervalID)
-	uv_lua.uv_timer_stop(aTimerReq[intervalID])
-	aTimerReq[intervalID] = nil
+local function clearInterval(intervalID)
+	if (aTimerReq[intervalID] ~= nil) then
+		uv_lua.uv_timer_stop(aTimerReq[intervalID])
+		aTimerReq[intervalID] = nil
+	end
 end
+rawset(_G, "clearInterval", clearInterval)
