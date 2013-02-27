@@ -2015,7 +2015,8 @@ if (ffi.os == "Windows") then
 	ffi.cdef [[
 		// tcp internal function:
 		int uv_preprocess_tcp_accept_req(uv_loop_t* loop, uv_tcp_t* handle,
-		uv_req_t* raw_req);
+			uv_req_t* raw_req);
+		int uv_tcp_endgame_step2_lua(uv_loop_t* loop, uv_tcp_t* handle);
 
 		// fs internal function:
 		void uv_preprocess_fs_req(uv_loop_t* loop, uv_fs_t* req);

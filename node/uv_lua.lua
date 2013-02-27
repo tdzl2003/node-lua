@@ -345,12 +345,13 @@ if (ffi.os == "Windows") then
 	local function uv_tcp_endgame(loop, handle)
 		local tcphandle = ffi.cast(p_uv_tcp_t, handle)
 		-- TODO: shutdown
-		uv.uv_tcp_endgame_step2_lua(loop, handle)
+		if (uv.uv_tcp_endgame_step2_lua(loop, tcphandle) ~= 0) then
+		end
 	end
 
 	local function uv_process_endgames(loop)
 		local handle
-		while (loop.endgame_handles) do
+		while (loop.endgame_handles ~= nil) do
 			handle = loop.endgame_handles
 			loop.endgame_handles = handle.endgame_next
 			handle.flags = band(handle.flags, 0xFFFFFFFB)
