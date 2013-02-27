@@ -26,6 +26,7 @@ do
 	package.path = package.path..path.join(scriptroot,"?.lua")..";"..path.join(scriptroot, "?.luac")..";"
 end
 
+local process = require("process")
 local path = require("path")
 
 require("lua_ex")
