@@ -509,7 +509,7 @@ function bufferMT:__newindex(key, val)
 end
 
 function bufferMT:__gc()
-	if (self.data) then
+	if (self.data ~= nil) then
 		C.free(self.data)
 	end
 end
@@ -558,7 +558,9 @@ end
 Buffer.newWithBuffer = newWithBuffer
 
 function Buffer.new(arg, ...)
-	if (type(arg) == 'number') then
+	if (not arg) then
+		return newBuffer()
+	elseif (type(arg) == 'number') then
 		return newWithSize(arg)
 	elseif (type(arg) == 'string') then
 		return newWithString(arg, ...)

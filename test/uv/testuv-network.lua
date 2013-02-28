@@ -24,10 +24,13 @@ uv_lua.uv_listen(server, 128, function(server, status)
 	uv.uv_tcp_init(loop, client)
 
 	if (uv_lua.uv_accept(server, client) == 0) then
-		uv_lua.uv_close(client, NULL)
-
-		uv_lua.uv_close(server, NULL)
+		uv_lua.uv_read_start(client, nil, function(handle, result, buffer)
+			if (result > 0) then
+				print(result, buffer:toString(nil, 0, result))
+			end
+		end)
 	else
 		uv_lua.uv_close(client, NULL)
 	end
 end)
+

@@ -6,6 +6,10 @@ local ffi = require("ffi")
 local bor = bit.bor
 local band = bit.band
 
+local Buffer = require("buffer")
+
+-- TODO: now there's many leak in unregister. I'll cleanup them as soon the basic features was done.
+
 -- Callback wrap
 local registers = {}
 local freelist
@@ -73,6 +77,10 @@ end
 
 function uv_lua.uv_close(handle, callback)
 	return uv.uv_close(ffi.cast(p_uv_handle_t, handle), callback)
+end
+
+function uv_lua.uv_read_start(stream, reserved, callback)
+	return uv.uv_read_start_lua(ffi.cast(p_uv_stream_t, stream), register(callback))
 end
 
 -- fs functions
@@ -276,6 +284,59 @@ if (ffi.os == "Windows") then
 		end
 	end
 
+	local function uv_process_tcp_read_req(loop, handle, raw_req)
+		local result = uv.uv_preprocess_tcp_read_req_step1(loop, handle, raw_req)
+
+		local callback = registers[handle.read_cb_lua]
+		if (result < 0) then
+			local buffer = Buffer.new()
+			buffer.data = handle.read_buffer.base
+			buffer.size = handle.read_buffer.len
+			callback(handle, result, buffer)
+		else
+			if (result > 0) then
+				-- Already have data in buffer. Must be not ZERO_READ mode.
+				local buffer = Buffer.new()
+				buffer.data = handle.read_buffer.base
+				buffer.size = handle.read_buffer.len
+				callback(handle, result, buffer)
+			end
+
+			-- in Non-zero read mode, maybe there's still data in buffer.
+			if (result == 0 or result == handle.read_buffer.len) then
+				while (band(handle.flags, 0x00000100) ~= 0) do
+					local result = uv.uv_preprocess_tcp_read_req_step2(loop, handle, raw_req)
+					local buffer = Buffer.new()
+					buffer.data = handle.read_buffer.base
+					buffer.size = handle.read_buffer.len
+					callback(handle, result, buffer)
+
+					if (result <= buffer.size) then
+						-- < 0 : error
+						-- == 0 : no more data(EWOULDBLOCK)
+						-- 0<result<size: got some data, but no more data.
+						break
+					end
+				end
+			end
+		end
+
+		uv.uv_preprocess_tcp_read_req_step3(loop, handle)
+		return
+	end
+
+	local function uv_process_read_req(loop, req)
+		local handle = ffi.cast(p_uv_handle_t, req.data)
+		local type = handle.type
+		if (type == uv.UV_TCP) then
+			uv_process_tcp_read_req(loop, ffi.cast(p_uv_tcp_t, handle), req)
+		--elseif (type == uv.UV_NAMED_PIPE) then
+		--elseif (type == uv.UV_TTY) then
+		else
+			error("Unsupported handle type!" .. tostring(type))
+		end
+	end
+
 	local function uv_process_accept_req(loop, req)
 		local handle = ffi.cast(p_uv_handle_t, req.data)
 		local type = handle.type
@@ -318,9 +379,9 @@ if (ffi.os == "Windows") then
 			end
 
 			local type = req.type
-			if (false) then
+			if (type == uv.UV_READ) then
+				uv_process_read_req(loop, req)
 			-- TODO:
-			-- elseif (type == uv.UV_READ) then
 			-- elseif (type == uv.UV_WRITE) then
 			elseif (type == uv.UV_ACCEPT) then
 				uv_process_accept_req(loop, req)

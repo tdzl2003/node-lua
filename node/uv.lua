@@ -989,7 +989,7 @@ local UV_HANDLE_FIELDS = [[
 local UV_STREAM_FIELDS = [[
 	size_t write_queue_size;
 	uv_alloc_cb alloc_cb;
-	uv_read_cb read_cb;
+	union {uv_read_cb read_cb; int read_cb_lua;};
 	uv_read2_cb read2_cb;
 ]] .. UV_STREAM_PRIVATE_FIELDS
 
@@ -1970,6 +1970,8 @@ ffi.cdef [[
 	// network functions
 	int uv_listen_lua(uv_stream_t* stream, int backlog, int cb);
 
+	int uv_read_start_lua(uv_stream_t* stream, int cb);
+
 	// fs functions
 	int uv_fs_close_lua(uv_loop_t* loop, uv_fs_t* req, uv_file file, int cb);
 
@@ -2016,7 +2018,16 @@ if (ffi.os == "Windows") then
 		// tcp internal function:
 		int uv_preprocess_tcp_accept_req(uv_loop_t* loop, uv_tcp_t* handle,
 			uv_req_t* raw_req);
+
 		int uv_tcp_endgame_step2_lua(uv_loop_t* loop, uv_tcp_t* handle);
+
+		int uv_preprocess_tcp_read_req_step1(uv_loop_t* loop, uv_tcp_t* handle,
+			uv_req_t* req);
+
+		int uv_preprocess_tcp_read_req_step2(uv_loop_t* loop, uv_tcp_t* handle,
+			uv_req_t* req);
+
+		void uv_preprocess_tcp_read_req_step3(uv_loop_t* loop, uv_tcp_t* handle);
 
 		// fs internal function:
 		void uv_preprocess_fs_req(uv_loop_t* loop, uv_fs_t* req);
