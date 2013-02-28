@@ -10,6 +10,8 @@ local band = bit.band
 local registers = {}
 local freelist
 local count = 0
+--callbacks used in process.nextTick
+uv_lua.nextTickCallbacks = {}
 
 local function register(cb)
 	assert(cb)
@@ -407,6 +409,19 @@ if (ffi.os == "Windows") then
 			if (loop.pending_reqs_tail == nil and
 				loop.endgame_handles == nil) then
 				uv_idle_invoke(loop)
+			end
+
+			-- do all callbacks in nextTickCallbacks
+			local t = {}
+			for i, v in pairs(nextTickCallbacks) do
+				t[i] = nextTickCallbacks[i]
+				nextTickCallbacks[i] = nil
+			end
+
+			for i,v in pairs(t) do
+				xpcall(t[i], function()
+					error("Unexpected error in nextTick callbacks.")
+				end)
 			end
 
 			uv_process_reqs(loop);
